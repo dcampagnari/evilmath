@@ -1,4 +1,4 @@
-# evilmath -- randomly swap signs in you maths
+# evilmath -- randomly swap signs in your maths
 
 ## Description
 Use the macro `\evilmath` to make signs math active and have them swap randomly with a certain probability.
