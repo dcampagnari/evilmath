@@ -1,0 +1,76 @@
+%% Evil Math, or How To Randomly Change Sings
+%% Copyright (C) 2023 Davide R. Campagnari
+%%
+%% This work may be distributed and/or modified under the conditions
+%% of the LaTeX Project Public License, either version 1.3c of this
+%% license or (at your option) any later version. The latest version
+%% of this license is in
+%%    http://www.latex-project.org/lppl.txt
+%% and version 1.3c or later is part of all distributions of LaTeX
+%% version 2008 or later.
+%%
+%% This work has the LPPL maintenance status `author-maintained'.
+%%
+%% The Current Maintainer of this work is Davide Campagnari
+%%    <davide (dot) campa (at) gmail (dot) com>
+%%
+%% This work consists of the file evilmath.sty only.
+\NeedsTeXFormat{LaTeX2e}[2020-10-01]
+\ProvidesPackage{evilmath}[2023-10-31 v0]
+\let\evilmath@color\relax
+\DeclareOption{show}{\def\evilmath@color{\color{red}}}
+\ProcessOptions\relax
+\RequirePackage{color}
+
+\newcommand*{\goodmath}{}
+\AtBeginDocument{%
+   \mathchardef\plus@sign=\mathcode`+
+   \begingroup\lccode`~=`+
+   \lowercase{\endgroup\def~}{\begingroup\mathbin{\evilmath@@\plus@sign\minus@sign}\endgroup}%
+   \mathchardef\minus@sign=\mathcode`-
+   \begingroup\lccode`~=`-
+   \lowercase{\endgroup\def~}{\begingroup\mathbin{\evilmath@@\minus@sign\plus@sign}\endgroup}%
+   \edef\goodmath{%
+      \global\mathcode`+=\the\mathcode`+
+      \global\mathcode`-=\the\mathcode`-
+   }%
+}
+
+\newcommand*{\showevilmath}{\def\evilmath@color{\color{red}}}
+\newcommand*{\hideevilmath}{\let\evilmath@color\relax}
+
+\newcommand*{\evilmath}{%
+   \evilmath@preamble@or@doc{\mathcode`\+="8000 \mathcode`\-="8000 }%
+   \@ifnextchar[{\evilmath@reset}{}%]
+}
+\newcommand*{\evilmath@preamble@or@doc}{\AtBeginDocument}
+\AtBeginDocument{\def\evilmath@preamble@or@doc{\@firstofone}}
+
+\def\evilmath@reset[#1]{%
+   \def\evilmath@prob{#1}%
+   \evilmath@set{#1}%
+}
+
+\ExplSyntaxOn
+\newcommand*{\evilmathseed}[1]{
+   \sys_gset_rand_seed:n{#1}
+   \expandafter\evilmathprobability\expandafter{\evilmath@prob}
+}
+
+\newcommand*{\evilmath@set}[1]{
+   \edef\evilmath@test{\int_rand:n{#1}}
+}
+
+\newcommand*{\evilmath@@}{%
+   \ifnum\int_rand:n{\evilmath@prob}=\evilmath@test\relax
+      \expandafter\evilmath@color\expandafter\@secondoftwo
+   \else
+      \expandafter\@firstoftwo
+   \fi
+}
+\ExplSyntaxOff
+
+\newcommand*{\evilmathprobability}[1]{\def\evilmath@prob{#1}\evilmath@set{#1}}
+\evilmathprobability{10}
+
+\endinput
